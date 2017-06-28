@@ -1,2 +1,7 @@
 *.class
 *.log
+derby.log
+*.iml
+target/**
+db_test/**
+.idea/**
