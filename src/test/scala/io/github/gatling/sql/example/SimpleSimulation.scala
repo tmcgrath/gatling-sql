@@ -14,35 +14,32 @@ class SimpleSimulation extends Simulation {
 
   val sqlConfig = sql.connection(conn)
 
-//  val createTableStudents="""CREATE TABLE students
-//                            (ID int,
-//                            NAME varchar(255))"""
-//  val createTableTeachers="""CREATE TABLE teachers
-//                            (ID int,
-//                            NAME varchar(255))"""
+  // setup
+  val dropTableStudents = """DROP TABLE students"""
+  val dropTableTeachers = """DROP TABLE teachers"""
 
-//  val insertS1="""INSERT INTO students VALUES (1,'JAN')"""
-//  val insertS2="""INSERT INTO students VALUES (2,'MARIE')"""
-//  val insertS3="""INSERT INTO students VALUES (3,'JOSEF')"""
-//
-//  val insertT1="""INSERT INTO students VALUES (4,'NOVAK')"""
-//  val insertT2="""INSERT INTO students VALUES (5,'CERNY')"""
-//  val insertT3="""INSERT INTO students VALUES (6,'VOKATA')"""
-//
-//  conn.prepareStatement(createTableStudents).execute()
-//  conn.prepareStatement(createTableTeachers).execute()
-//  conn.prepareStatement(insertS1).execute()
+  val createTableStudents="""CREATE TABLE students
+                            (ID int,
+                            NAME varchar(255))"""
+  val createTableTeachers="""CREATE TABLE teachers
+                            (ID int,
+                            NAME varchar(255))"""
 
-//  SqlUpdateStatement(createTableTeachers).executeQuery(conn)
-//
-//  SqlUpdateStatement(insertS1).executeQuery(conn)
-//  SqlUpdateStatement(insertS2).executeQuery(conn)
-//  SqlUpdateStatement(insertS3).executeQuery(conn)
-//
-//  SqlUpdateStatement(insertT1).executeQuery(conn)
-//  SqlUpdateStatement(insertT2).executeQuery(conn)
-//  SqlUpdateStatement(insertT3).executeQuery(conn)
-//
+  val insertS1="""INSERT INTO students VALUES (1,'JAN')"""
+  val insertS2="""INSERT INTO students VALUES (2,'MARIE')"""
+  val insertS3="""INSERT INTO students VALUES (3,'JOSEF')"""
+
+  val insertT1="""INSERT INTO students VALUES (4,'NOVAK')"""
+  val insertT2="""INSERT INTO students VALUES (5,'CERNY')"""
+  val insertT3="""INSERT INTO students VALUES (6,'VOKATA')"""
+
+  val stmts = Array[String](dropTableStudents, dropTableTeachers, createTableStudents,
+                            createTableTeachers, insertS1, insertS2, insertS3,
+                            insertT1, insertT2, insertT3)
+  stmts.foreach { stmt =>
+    conn.prepareStatement(stmt).execute()
+  }
+  // end setup
 
   val sqlQuery = "SELECT NAME FROM ${table} WHERE ID = ${id}"
   val sqlAllQuery = "SELECT * FROM ${table} WHERE ID = ${id}"
@@ -54,32 +51,7 @@ class SimpleSimulation extends Simulation {
       exec(sql("All query 1").selectQuery(sqlAllQuery))
     }
 
-  //Gatling EL for ${randomNum}"
-
   setUp(scn.inject(atOnceUsers(10)))
     .protocols(sqlConfig)
 
 }
-
-/*
-  val scn = scenario("Two statements").repeat(1) { //Name your scenario
-    feed(feeder)
-    .exec(cql("simple SELECT")
-         // 'execute' can accept a string
-         // and understands Gatling expression language (EL), i.e. ${randomNum}
-        .execute("SELECT * FROM test_table WHERE num = ${randomNum}")
-        .check(rowCount.is(1)))
-    .exec(cql("prepared INSERT")
-         // alternatively 'execute' accepts a prepared statement
-        .execute(prepared)
-         // you need to provide parameters for that (EL is supported as well)
-        .withParams(Integer.valueOf(random.nextInt()), "${randomString}")
-        // and set a ConsistencyLevel optionally
-        .consistencyLevel(ConsistencyLevel.ANY))
-  }
-
-  setUp(scn.inject(rampUsersPerSec(10) to 100 during (30 seconds)))
-    .protocols(cqlConfig)
-
-  after(cluster.close())
- */

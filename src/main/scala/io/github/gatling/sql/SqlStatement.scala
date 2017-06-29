@@ -2,12 +2,13 @@ package io.github.gatling.sql
 
 import java.sql.{Connection, PreparedStatement}
 
+import com.typesafe.scalalogging.StrictLogging
 import io.github.gatling.sql.db.{ConnectionAndTimes, ConnectionFactory}
 import io.gatling.commons.validation.Validation
 import io.gatling.core.session.{Expression, Session}
 import io.gatling.commons.validation._
 
-trait SqlStatement {
+trait SqlStatement extends StrictLogging {
 
   def apply(session:Session): Validation[PreparedStatement]
 
@@ -20,7 +21,10 @@ trait SqlStatement {
 }
 
 case class SimpleSqlStatement(statement: Expression[String]) extends SqlStatement {
-  def apply(session: Session): Validation[PreparedStatement] = statement(session).flatMap(stmt => getConnectionAndTimes.connection.prepareStatement(stmt).success)
+  def apply(session: Session): Validation[PreparedStatement] = statement(session).flatMap { stmt =>
+      logger.info(s"STMT: ${stmt}")
+      getConnectionAndTimes.connection.prepareStatement(stmt).success
+    }
 }
 
 /*

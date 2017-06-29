@@ -9,5 +9,3 @@ https://github.com/senkadam/gatlingsql/blob/master/LICENSE
 
 https://github.com/gatling-cql/GatlingCql is released with an MIT License
 https://github.com/gatling-cql/GatlingCql/blob/master/LICENSE
-
-Thank you

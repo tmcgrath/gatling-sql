@@ -8,7 +8,7 @@ import org.apache.commons.pool2.impl.{DefaultPooledObject, GenericObjectPoolConf
 import org.apache.commons.pool2.impl.GenericObjectPool
 
 /**
-  * From https://github.com/senkadam/gatlingsql
+  * Original: https://github.com/senkadam/gatlingsql
  * Created by senk on 8.1.15.
  */
 
@@ -117,8 +117,6 @@ object ConnectionFactory {
     dBWithSet=Some(dBWithSettings)
 
   }
-
-  println(s"Todd: ${config}")
 
   def connection: Connection = dBWithSet match {
     case None => DriverManager.getConnection(
