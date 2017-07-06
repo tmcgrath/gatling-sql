@@ -12,7 +12,7 @@ class ThriftServerSimulation extends Simulation {
   val sqlConfig = sql.connection(conn)
 
   // Assumes data is already loaded into a Cassandra keyspace named 'pioneer'
-  // and in tables `students` or `teachers`
+  // and tables `students` or `teachers` populated with data
 
   val sqlQuery = "SELECT NAME FROM pioneer.${table} WHERE ID = ${id}"
   val sqlAllQuery = "SELECT * FROM pioneer.${table} WHERE ID = ${id}"
