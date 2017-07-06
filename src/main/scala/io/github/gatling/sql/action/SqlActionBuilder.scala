@@ -53,6 +53,7 @@ class SqlAction(val name: String, protocol: SqlProtocol, val statsEngine: StatsE
       result.onFailure { case t =>
         statsEngine.reportUnbuildableRequest(session, name, t.getMessage)
       }
+
       result.onSuccess { case result =>
 
         val requestEndDate = nowMillis
@@ -65,6 +66,7 @@ class SqlAction(val name: String, protocol: SqlProtocol, val statsEngine: StatsE
           None,
           if (result) None else Some("Failed... TBD")
         )
+
         next ! session.markAsSucceeded
       }
     })

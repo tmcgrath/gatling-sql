@@ -4,7 +4,7 @@ import io.gatling.core.action.builder.ActionBuilder
 import io.github.gatling.sql.protocol.{SqlProtocol, SqlProtocolBuilder}
 import io.github.gatling.sql.request.{SqlRequestBuilder, SqlRequestBuilderBase}
 
-object Predef { // someday maybe - implement trait for checks; re: approach from CQL
+object Predef { // someday maybe - implement trait for checks; re: approach from CQL Extension
 
   val sql = SqlProtocolBuilder
 

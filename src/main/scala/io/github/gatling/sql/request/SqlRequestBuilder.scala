@@ -18,15 +18,15 @@ case class SqlRequestBuilderBase(tag: String) {
 
 /* Someday maybe
 case class SqlPreparedRequestParamsBuilder(tag: String, prepared: PreparedStatement) {
-//  def withParams(params: Expression[AnyRef]*) = SqlRequestBuilder(CqlAttributes(tag, BoundCqlStatement(prepared, params: _*)))
+//  def withParams(params: Expression[AnyRef]*) = SqlRequestBuilder(CqlAttributes(tag, BoundSqlStatement(prepared, params: _*)))
 //}
 */
 case class SqlRequestBuilder(attr: SqlAttributes) {
   def build(): ActionBuilder = new SqlActionBuilder(attr)
 
   /**
-    * See GatlingCql for example of implementing something like this
-    * Stops defining the request and adds checks on the response
+    * See GatlingCql for example of implementing something like the following
+    * Adds checks on the response
     *
     */
 //  def check(checks: CqlCheck*): SqlRequestBuilder = SqlRequestBuilder(attr.copy(checks = attr.checks ::: checks.toList))
