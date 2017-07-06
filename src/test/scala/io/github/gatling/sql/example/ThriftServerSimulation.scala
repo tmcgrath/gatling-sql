@@ -4,6 +4,11 @@ import io.gatling.core.Predef._
 import io.github.gatling.sql.Predef._
 import io.github.gatling.sql.db.ConnectionPool
 
+/**
+  *
+  * uncomment the hive-jdbc and hadoop-common dependecies in pom.xml to run this example
+  *
+  */
 class ThriftServerSimulation extends Simulation {
 
   Class.forName("org.apache.hive.jdbc.HiveDriver")
