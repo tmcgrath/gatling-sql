@@ -29,7 +29,8 @@ class SimpleSimulation extends Simulation {
   val insertT2="""INSERT INTO teachers VALUES (5,'CERNY')"""
   val insertT3="""INSERT INTO teachers VALUES (6,'VOKATA')"""
 
-  val stmts = Array[String](dropTableStudents, dropTableTeachers, createTableStudents,
+  val stmts = Array[String](dropTableStudents, dropTableTeachers,
+                            createTableStudents,
                             createTableTeachers, insertS1, insertS2, insertS3,
                             insertT1, insertT2, insertT3)
   stmts.foreach { stmt =>
