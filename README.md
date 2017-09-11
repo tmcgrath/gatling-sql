@@ -4,7 +4,8 @@ Extension for Gatling to stress your SQL database or Spark Thrift Server via JDB
 
 ## Quick start
 
-Run the Maven `test` task which will attempt to download dependencies, compile and execute the `SimpleSimulation`
+Run the Maven `test` task which will attempt to download dependencies,
+compile and execute the `ThriftServerSimulation`
 
 
 
