@@ -11,8 +11,8 @@ class SimpleSimulation extends Simulation {
   val sqlConfig = sql.connection(conn)
 
   // setup
-  val dropTableStudents = """DROP TABLE students"""
-  val dropTableTeachers = """DROP TABLE teachers"""
+  val dropTableStudents = """DROP TABLE IF EXISTS students"""
+  val dropTableTeachers = """DROP TABLE IF EXISTS teachers"""
 
   val createTableStudents="""CREATE TABLE students
                             (ID int,
