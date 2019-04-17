@@ -7,7 +7,7 @@ Extension for Gatling to stress your SQL database or Spark Thrift Server via JDB
 Run the Maven `test` task which will attempt to download dependencies,
 compile and execute the `ThriftServerSimulation`
 
-For more info, see [Spark Thrift Server Load Testing tutorial](https://www.supergloo.com/fieldnotes/apache-spark-thrift-server-load-testing-example "Spark Thrift Server Load Testing Example")
+For more info, see [Spark Thrift Server Load Testing tutorial](https://supergloo.com/spark/apache-spark-thrift-server-load-testing-example/ "Spark Thrift Server Load Testing Example")
 
 ### References, Influences and Thanks
 
