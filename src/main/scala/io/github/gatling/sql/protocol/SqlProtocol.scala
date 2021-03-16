@@ -2,13 +2,13 @@ package io.github.gatling.sql.protocol
 
 import java.sql.Connection
 
-import akka.actor.ActorSystem
 import com.zaxxer.hikari.HikariDataSource
 import io.gatling.core
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.protocol.{Protocol, ProtocolComponents, ProtocolKey}
 import io.gatling.core.session.Session
+import io.gatling.core.session.Session.{Identity, NothingOnExit}
 
 
 case class SqlProtocol(connection: Connection) extends Protocol {
@@ -17,7 +17,7 @@ case class SqlProtocol(connection: Connection) extends Protocol {
 
 object SqlProtocol {
 
-  val SqlProtocolKey = new ProtocolKey {
+  val SqlProtocolKey = new ProtocolKey[SqlProtocol, SqlComponents] {
 
     type Protocol = SqlProtocol
     type Components = SqlComponents
@@ -26,16 +26,16 @@ object SqlProtocol {
 
     override def defaultProtocolValue(configuration: GatlingConfiguration): SqlProtocol = throw new IllegalStateException("Can't provide a default value for SqlProtocol")
 
-    override def newComponents(system: ActorSystem, coreComponents: CoreComponents): SqlProtocol => SqlComponents = {
+    override def newComponents(coreComponents: CoreComponents): SqlProtocol => SqlComponents = {
       sqlProtocol => SqlComponents(sqlProtocol)
     }
   }
 }
 
 case class SqlComponents(sqlProtocol: SqlProtocol) extends ProtocolComponents {
-  def onStart: Option[Session => Session] = None
+  def onStart: Session => Session = Identity
 
-  def onExit: Option[Session => Unit] = None
+  def onExit: Session => Unit = NothingOnExit
 }
 
 case class SqlProtocolBuilder(connection: Connection = null) {

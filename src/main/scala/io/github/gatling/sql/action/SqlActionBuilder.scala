@@ -1,10 +1,10 @@
 package io.github.gatling.sql.action
 
 import java.io.ByteArrayInputStream
-import java.sql.{Connection, PreparedStatement}
+import java.sql.PreparedStatement
 
 import io.gatling.commons.stats.{KO, OK}
-import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.commons.util.Clock
 import io.gatling.commons.validation.{Failure, Success, Validation}
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.builder.ActionBuilder
@@ -12,7 +12,6 @@ import io.gatling.core.action.{Action, ExitableAction}
 import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.util.NameGen
 import io.github.gatling.sql.protocol.SqlProtocol
@@ -45,27 +44,27 @@ class SqlAction(val name: String, protocol: SqlProtocol, val throttled : Boolean
     psExpr match {
       case Success(stmt) =>
         if (throttled) {
-          coreComponents.throttler.throttle(name, () => {
+          coreComponents.throttler.get.throttle(name, () => {
             executeStatement(stmt, newSession)
           })
         } else {
           executeStatement(stmt, newSession)
         }
       case Failure(err) =>
-        statsEngine.logResponse(session, name, ResponseTimings(nowMillis, nowMillis), KO, None, Some("Error setting up statement: " + err), Nil)
+        statsEngine.logResponse(session.scenario, session.groups, name, System.currentTimeMillis(), System.currentTimeMillis(), KO, None, Some("Error setting up statement: " + err))
         next ! newSession.markAsFailed
     }
   }
 
   def executeStatement(stmt: PreparedStatement, session : Session) {
-      val start = nowMillis
+      val start = System.currentTimeMillis()
 
       val future = Future {
           val resolved = arguments.map(a => {
               a.value(session) match {
                   case Success(v: Any) => (a.pos, a.sqlType, v)
                   case Failure(msg: String) =>
-                      statsEngine.reportUnbuildableRequest(session, name, msg)
+                      statsEngine.reportUnbuildableRequest(session.scenario, session.groups, name, msg)
                       throw new IllegalArgumentException(s"Unable to evaluate expression for parameter at position ${a.pos}")
               }
           })
@@ -83,22 +82,22 @@ class SqlAction(val name: String, protocol: SqlProtocol, val throttled : Boolean
 
       future onComplete {
           case scala.util.Success(result) =>
-              val requestEndDate = nowMillis
+              val requestEndDate = System.currentTimeMillis()
               statsEngine.logResponse(
-                  session,
+                  session.scenario, session.groups,
                   name,
-                  ResponseTimings(startTimestamp = start, endTimestamp = requestEndDate),
+                  start, requestEndDate,
                   OK,
                   None,
                   None
               )
               next ! session.markAsSucceeded
           case scala.util.Failure(t)=>
-              val requestEndDate = nowMillis
+              val requestEndDate = System.currentTimeMillis()
               statsEngine.logResponse(
-                  session,
+                  session.scenario, session.groups,
                   name,
-                  ResponseTimings(startTimestamp = start, endTimestamp = requestEndDate),
+                  start, requestEndDate,
                   KO,
                   None,
                   Some(t.getMessage)
@@ -108,4 +107,6 @@ class SqlAction(val name: String, protocol: SqlProtocol, val throttled : Boolean
   }
 
   override def statsEngine: StatsEngine = coreComponents.statsEngine
+
+  override def clock: Clock = coreComponents.clock
 }
