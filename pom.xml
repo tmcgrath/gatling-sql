@@ -62,25 +62,25 @@
         <log4j.version>1.2.17</log4j.version>
         <log4j2.version>2.10.0</log4j2.version>
         <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
-        <maven-clean-plugin.version>2.6.1</maven-clean-plugin.version>
-        <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
+        <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
         <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
         <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
-        <maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
-        <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
-        <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
-        <maven-surefire-plugin.version>2.21.0</maven-surefire-plugin.version>
+        <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
+        <maven-site-plugin.version>3.9.1</maven-site-plugin.version>
+        <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
+        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <metrics.version>3.2.1</metrics.version>
         <netty3.version>3.7.0.Final</netty3.version>
         <netty4.version>4.1.17.Final</netty4.version>
         <nimbus-jose-jwt.version>4.41.1</nimbus-jose-jwt.version>
-        <scala-maven-plugin.version>3.3.2</scala-maven-plugin.version>
+        <scala-maven-plugin.version>4.4.1</scala-maven-plugin.version>
         <scala-parser-combinators.version>1.1.0</scala-parser-combinators.version>
         <scala.patch>6</scala.patch>
         <scala.release>2.12</scala.release>
         <scala.version>${scala.release}.${scala.patch}</scala.version>
-        <scalatest-maven-plugin.version>1.0</scalatest-maven-plugin.version>
+        <scalatest-maven-plugin.version>2.0.2</scalatest-maven-plugin.version>
         <scalatest.version>3.0.5</scalatest.version>
         <servlet-api.version>2.5</servlet-api.version>
         <slf4j.version>1.7.25</slf4j.version>
@@ -251,7 +251,7 @@
                       <configuration>
                           <rules>
                               <requireMavenVersion>
-                                  <version>[3.0.4,)</version>
+                                  <version>[3.3.9,)</version>
                               </requireMavenVersion>
                               <DependencyConvergence />
                               <requirePluginVersions>
