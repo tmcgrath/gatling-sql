@@ -6,13 +6,15 @@ import com.zaxxer.hikari.HikariDataSource
 
 object ConnectionPool {
 
-  lazy val config: Config = ConfigFactory.load
 
-  private val ds = new HikariDataSource
-  ds.setJdbcUrl(config.getString("jdbc.db.url"))
-  ds.setUsername(config.getString("jdbc.db.username"))
-  ds.setPassword(config.getString("jdbc.db.password"))
+  def connection(): Connection = {
+    lazy val config: Config = ConfigFactory.load
 
-  val connection: Connection = ds.getConnection
+    val ds = new HikariDataSource
+    ds.setJdbcUrl(config.getString("jdbc.db.url"))
+    ds.setUsername(config.getString("jdbc.db.username"))
+    ds.setPassword(config.getString("jdbc.db.password"))
+    ds.getConnection
+  }
 
 }

@@ -1,5 +1,7 @@
 package io.github.gatling.sql.example
 
+import java.sql.{Connection, PreparedStatement}
+
 import io.gatling.core.Predef._
 import io.github.gatling.sql.Predef._
 import io.github.gatling.sql.db.ConnectionPool
@@ -11,8 +13,8 @@ class SimpleSimulation extends Simulation {
   val sqlConfig = sql.connection(conn)
 
   // setup
-  val dropTableStudents = """DROP TABLE students"""
-  val dropTableTeachers = """DROP TABLE teachers"""
+  val dropTableStudents = """DROP TABLE IF EXISTS students"""
+  val dropTableTeachers = """DROP TABLE IF EXISTS teachers"""
 
   val createTableStudents="""CREATE TABLE students
                             (ID int,
@@ -38,6 +40,9 @@ class SimpleSimulation extends Simulation {
   }
   // end setup
 
+  val preparedIntStatement : Connection => PreparedStatement = conn => conn.prepareStatement("SELECT * FROM students WHERE id=?")
+  val preparedStringStatement : Connection => PreparedStatement = conn => conn.prepareStatement("SELECT * FROM students WHERE name=?")
+
   val sqlQuery = "SELECT NAME FROM ${table} WHERE ID = ${id}"
   val sqlAllQuery = "SELECT * FROM ${table} WHERE ID = ${id}"
 
@@ -45,7 +50,9 @@ class SimpleSimulation extends Simulation {
     scenario("test").repeat(1) {
       feed(csv("sample-feed.csv").circular).
       exec(sql("Name query").selectQuery(sqlQuery)).
-      exec(sql("All query").selectQuery(sqlAllQuery))
+      exec(sql("All query").selectQuery(sqlAllQuery)).
+      exec(sql("Prepared ID query").preparedQuery("int", preparedIntStatement).withIntArgument(1))
+      exec(sql("Prepared name query").preparedQuery("string", preparedStringStatement).withStringArgument("JAN"))
     }
 
   setUp(scn.inject(atOnceUsers(10)))

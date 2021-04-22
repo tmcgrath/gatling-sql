@@ -3,21 +3,38 @@ package io.github.gatling.sql
 import java.sql.{Connection, PreparedStatement}
 
 import com.typesafe.scalalogging.StrictLogging
-import io.github.gatling.sql.db.ConnectionPool
-import io.gatling.commons.validation.Validation
+import io.gatling.commons.validation.{Failure, Success, Validation}
 import io.gatling.core.session.{Expression, Session}
-import io.gatling.commons.validation._
+import io.github.gatling.sql.protocol.SqlProtocol
 
-trait SqlStatement extends StrictLogging {
-
-  def apply(session:Session): Validation[PreparedStatement]
-
-  def connection = ConnectionPool.connection
+abstract class SqlStatement() extends StrictLogging {
+  def apply(session: Session, sqlProtocol: SqlProtocol): (Session, Validation[PreparedStatement]) = null
 }
 
-case class SimpleSqlStatement(statement: Expression[String]) extends SqlStatement {
-  def apply(session: Session): Validation[PreparedStatement] = statement(session).flatMap { stmt =>
-      logger.debug(s"STMT: ${stmt}")
-      connection.prepareStatement(stmt).success
+class SimpleSqlStatement(statement: Expression[String]) extends SqlStatement {
+  override def apply(session: Session, sqlProtocol: SqlProtocol): (Session, Validation[PreparedStatement]) = {
+    statement(session) match {
+      case Success(stmt) =>
+      logger.debug(s"STMT: $stmt")
+      (session, Success(sqlProtocol.connection.prepareStatement(stmt)))
+      case Failure(t) => (session, Failure(t))
     }
+  }
+}
+
+case class PreparedSqlStatement(id : String, statement: Expression[Connection => PreparedStatement]) extends SqlStatement {
+  override def apply(session: Session, sqlProtocol: SqlProtocol): (Session, Validation[PreparedStatement]) = {
+    statement(session) match {
+      case Success(f) =>
+        val key = "io.github.gatling.sql." + id
+        if (session.contains(key)) {
+          (session, Success(session(key).as[PreparedStatement]))
+        } else {
+          val stmt : PreparedStatement = f(sqlProtocol.connection)
+          val newSession = session.set(key, stmt)
+          (newSession, Success(stmt))
+        }
+      case Failure(t) => (session, Failure(t))
+    }
+  }
 }
