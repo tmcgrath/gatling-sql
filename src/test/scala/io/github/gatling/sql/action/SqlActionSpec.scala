@@ -4,24 +4,25 @@ import java.sql.{Connection, PreparedStatement}
 import java.util.UUID
 import java.util.concurrent.{Semaphore, TimeUnit}
 
-import akka.actor.{ActorPath, ActorRef}
+import akka.actor.ActorRef
 import com.zaxxer.hikari.HikariDataSource
 import io.gatling.commons.stats.Status
 import io.gatling.commons.validation.Success
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.Action
-import io.gatling.core.controller.throttle.{ThrottledRequest, Throttler}
+import io.gatling.core.controller.throttle.Throttler
+import io.gatling.core.session.Session.NothingOnExit
 import io.gatling.core.session.el.ElCompiler
 import io.gatling.core.session.{GroupBlock, Session}
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.ResponseTimings
-import io.gatling.core.stats.writer.UserMessage
+import io.gatling.core.stats.writer.UserEndMessage
 import io.github.gatling.sql.PreparedSqlStatement
 import io.github.gatling.sql.protocol.{SqlProtocol, SqlProtocolBuilder}
 import io.github.gatling.sql.request.{Argument, SqlAttributes, SqlType}
-import org.scalatest.FlatSpec
+import io.netty.channel.{DefaultEventLoop, EventLoop}
+import org.scalatest.flatspec.AnyFlatSpec
 
-class SqlActionSpec extends FlatSpec {
+class SqlActionSpec extends AnyFlatSpec {
   "An action" should "set arguments of prepared statements" in {
     val ds = new HikariDataSource
     val dbUrl = s"jdbc:h2:mem:${UUID.randomUUID().toString}"
@@ -32,13 +33,16 @@ class SqlActionSpec extends FlatSpec {
     val protocol: SqlProtocol = builder.build()
 
     conn.createStatement().execute("create table t (i number)")
+    val eventloop : EventLoop = new DefaultEventLoop()
 
-    val session = new Session("test", 0, Map())
+    val session = new Session("test", 0, Map(), io.gatling.commons.stats.OK, List(), NothingOnExit, eventloop)
 
-    val coreComponents = CoreComponents(null, new DummyThrottler(), new DummyStatsEngine, null, null)
+    val coreComponents = new CoreComponents(
+      null, null, null, Option(new DummyThrottler()), new DummyStatsEngine, null, null, null
+    )
 
     val sema = new Semaphore(0)
-    val prep : Connection => PreparedStatement = conn => conn.prepareStatement("insert into t(i) values (?)")
+    val prep: Connection => PreparedStatement = conn => conn.prepareStatement("insert into t(i) values (?)")
     val insert: SqlAction = new SqlAction(
       "test", protocol, false, coreComponents, semaReleaseAction(sema),
       SqlAttributes("tag", new PreparedSqlStatement("a", session => Success(prep))),
@@ -65,11 +69,12 @@ class SqlActionSpec extends FlatSpec {
 
     conn.createStatement().execute("create table t (s varchar(32))")
 
-    val prep : Connection => PreparedStatement = conn => conn.prepareStatement("insert into t(s) values (?)")
+    val prep: Connection => PreparedStatement = conn => conn.prepareStatement("insert into t(s) values (?)")
+    val eventloop : EventLoop = new DefaultEventLoop()
 
-    val session = new Session("test", 0, Map("var" -> "foo"))
+    val session = new Session("test", 0, Map("var" -> "foo"), io.gatling.commons.stats.OK, List(), NothingOnExit, eventloop)
 
-    val coreComponents = CoreComponents(null, new DummyThrottler(), new DummyStatsEngine, null, null)
+    val coreComponents = new CoreComponents(null, null, null, Option(new DummyThrottler()), new DummyStatsEngine, null, null, null)
 
     val sema = new Semaphore(0)
     val insert: SqlAction = new SqlAction(
@@ -102,17 +107,20 @@ class SqlActionSpec extends FlatSpec {
 
     override def stop(replyTo: ActorRef, exception: Option[Exception]): Unit = {}
 
-    override def logUser(userMessage: UserMessage): Unit = {}
+    override def logUserStart(scenario: String, timestamp: Long): Unit = {}
 
-    override def logResponse(session: Session, requestName: String, timings: ResponseTimings, status: Status, responseCode: Option[String], message: Option[String], extraInfo: List[Any]): Unit = {}
+    override def logUserEnd(userMessage: UserEndMessage): Unit = {}
 
-    override def logGroupEnd(session: Session, group: GroupBlock, exitTimestamp: Long): Unit = {}
+    override def logResponse(scenario: String, groups: List[String], requestName: String, startTimestamp: Long, endTimestamp: Long, status: Status, responseCode: Option[String], message: Option[String]): Unit = {}
 
-    override def logCrash(session: Session, requestName: String, error: String): Unit = {}
+    override def logGroupEnd(scenario: String, groupBlock: GroupBlock, exitTimestamp: Long): Unit = {}
+
+    override def logCrash(scenario: String, groups: List[String], requestName: String, error: String): Unit = {}
   }
 
   class DummyThrottler() extends Throttler(null, null) {
     override def throttle(scenarioName: String, action: () => Unit): Unit =
       action()
   }
+
 }

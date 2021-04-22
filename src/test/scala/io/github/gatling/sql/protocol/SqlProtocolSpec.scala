@@ -3,9 +3,9 @@ package io.github.gatling.sql.protocol
 import java.util.UUID
 
 import com.zaxxer.hikari.HikariDataSource
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class SqlProtocolSpec extends FlatSpec {
+class SqlProtocolSpec extends AnyFlatSpec {
   "A builder" should "use the supplied connection, if any" in {
     val ds = new HikariDataSource
     ds.setJdbcUrl(s"jdbc:h2:mem:${UUID.randomUUID().toString}")
